@@ -1,0 +1,12 @@
+Options -Indexes
+DirectoryIndex index.php index.html
+
+<FilesMatch "^(\.env|composer\.json|composer\.lock|package\.json|package-lock\.json|README|README\.md|.*\.sql|.*\.zip)$">
+    Require all denied
+</FilesMatch>
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteRule ^config/ - [F,L]
+    RewriteRule ^sql/ - [F,L]
+</IfModule>
