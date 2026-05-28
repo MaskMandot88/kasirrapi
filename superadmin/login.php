@@ -6,6 +6,15 @@ if (!superadmin_ip_allowed()) {
     exit('Akses ditolak.');
 }
 
+$setupError = '';
+if (!SUPERADMIN_SESSION_READY) {
+    $setupError = 'Session server tidak bisa dimulai. Periksa session.save_path di hosting atau hubungi support hosting.';
+} elseif (!SUPERADMIN_CONFIG_LOADED) {
+    $setupError = 'File config/superadmin.php belum ada di hosting. Salin dari config/superadmin.example.php lalu isi username dan hash password.';
+} elseif (!superadmin_config_ready()) {
+    $setupError = 'Konfigurasi superadmin belum valid. Pastikan username terisi dan SUPERADMIN_PASSWORD_HASH berisi hash dari password_hash(), bukan password polos.';
+}
+
 if (superadmin_is_logged_in()) {
     header('Location: index.php');
     exit;
@@ -19,13 +28,16 @@ if ($requestMethod === 'POST') {
     $password = $_POST['password'] ?? '';
     $csrf = $_POST['csrf_token'] ?? '';
 
-    if (!superadmin_csrf_valid($csrf)) {
+    if ($setupError !== '') {
+        $error = $setupError;
+    } elseif (!superadmin_csrf_valid($csrf)) {
         $error = 'Sesi login tidak valid. Coba lagi.';
     } elseif (superadmin_verify_login($username, $password)) {
         session_regenerate_id(true);
         $_SESSION['superadmin_logged_in'] = true;
         $_SESSION['superadmin_username'] = SUPERADMIN_USERNAME;
         unset($_SESSION['superadmin_csrf_token']);
+        session_write_close();
         header('Location: index.php');
         exit;
     } else {
@@ -114,6 +126,10 @@ function superadmin_login_h($value) {
     <form method="POST" class="login-card">
         <h1>Super Admin</h1>
         <p>Masuk untuk mengelola tenant dan tiket bantuan.</p>
+
+        <?php if ($setupError !== ''): ?>
+            <div class="error"><?= superadmin_login_h($setupError) ?></div>
+        <?php endif; ?>
 
         <?php if ($error !== ''): ?>
             <div class="error"><?= superadmin_login_h($error) ?></div>
