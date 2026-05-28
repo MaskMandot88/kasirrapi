@@ -387,33 +387,25 @@
         position: fixed;
         right: max(12px, env(safe-area-inset-right));
         bottom: max(14px, env(safe-area-inset-bottom));
-        width: min(330px, calc(100vw - 24px));
-        max-height: calc(100svh - 28px);
+        width: auto;
+        max-height: none;
     }
 
     .kr-chat-promo {
-        width: min(142px, 42vw);
-        max-height: min(230px, calc(100vh - 120px));
-    }
-
-    .kr-chat-promo-image {
-        max-height: min(230px, calc(100vh - 120px));
-    }
-
-    .kr-chat-promo-close {
-        top: 24px;
-        width: 28px;
-        height: 28px;
+        display: none;
     }
 
     .kr-chat-toggle {
-        width: 104px;
-        height: 58px;
+        display: flex;
+        width: 68px;
+        height: 68px;
+        border-radius: 999px;
+        box-shadow: 0 18px 46px rgba(255, 106, 0, .42);
     }
 
     .kr-chat-toggle-icon {
-        width: 91px;
-        height: 48px;
+        width: 56px;
+        height: 42px;
     }
 
     .kr-chat-panel {
