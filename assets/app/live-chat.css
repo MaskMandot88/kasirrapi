@@ -384,9 +384,11 @@
 
 @media (max-width: 640px) {
     .kr-live-chat {
-        right: 12px;
-        bottom: 14px;
+        position: fixed;
+        right: max(12px, env(safe-area-inset-right));
+        bottom: max(14px, env(safe-area-inset-bottom));
         width: min(330px, calc(100vw - 24px));
+        max-height: calc(100svh - 28px);
     }
 
     .kr-chat-promo {

@@ -19,21 +19,9 @@ if (!defined('APP_SEO_DESCRIPTION')) {
 }
 
 if (!defined('APP_VERSION')) {
-    define('APP_VERSION', '1.0.19');
+    define('APP_VERSION', '1.0.20');
 }
 
-/*
-|--------------------------------------------------------------------------
-| APP_BASE_URL
-|--------------------------------------------------------------------------
-| Kosong berarti aplikasi berada langsung di root domain:
-| https://domain.com/
-|
-| Jika nanti aplikasi dipasang di subfolder, contoh:
-| https://domain.com/kasirrapi/
-| ubah menjadi:
-| define('APP_BASE_URL', '/kasirrapi');
-*/
 if (!defined('APP_BASE_URL')) {
     define('APP_BASE_URL', '');
 }
