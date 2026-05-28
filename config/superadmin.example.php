@@ -10,9 +10,3 @@ if (!defined('SUPERADMIN_USERNAME')) {
 if (!defined('SUPERADMIN_PASSWORD_HASH')) {
     define('SUPERADMIN_PASSWORD_HASH', 'ISI_HASH_PASSWORD_DI_SINI');
 }
-
-// Opsional: isi IP yang boleh akses, misalnya ['127.0.0.1', '::1'].
-// Kosongkan array agar cukup dilindungi username/password.
-if (!defined('SUPERADMIN_ALLOWED_IPS')) {
-    define('SUPERADMIN_ALLOWED_IPS', []);
-}

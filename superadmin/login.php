@@ -1,11 +1,6 @@
 <?php
 require_once __DIR__ . '/_auth.php';
 
-if (!superadmin_ip_allowed()) {
-    http_response_code(403);
-    exit('Akses ditolak.');
-}
-
 $setupError = '';
 if (!SUPERADMIN_SESSION_READY) {
     $setupError = 'Session server tidak bisa dimulai. Periksa session.save_path di hosting atau hubungi support hosting.';

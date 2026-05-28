@@ -26,27 +26,6 @@ if (!defined('SUPERADMIN_PASSWORD_HASH')) {
     define('SUPERADMIN_PASSWORD_HASH', '');
 }
 
-if (!defined('SUPERADMIN_ALLOWED_IPS')) {
-    define('SUPERADMIN_ALLOWED_IPS', []);
-}
-
-if (!function_exists('superadmin_client_ip')) {
-    function superadmin_client_ip() {
-        return $_SERVER['REMOTE_ADDR'] ?? '';
-    }
-}
-
-if (!function_exists('superadmin_ip_allowed')) {
-    function superadmin_ip_allowed() {
-        $allowedIps = SUPERADMIN_ALLOWED_IPS;
-        if (!is_array($allowedIps) || count($allowedIps) === 0) {
-            return true;
-        }
-
-        return in_array(superadmin_client_ip(), $allowedIps, true);
-    }
-}
-
 if (!function_exists('superadmin_is_logged_in')) {
     function superadmin_is_logged_in() {
         if (!SUPERADMIN_SESSION_READY) {
@@ -110,11 +89,6 @@ if (!function_exists('superadmin_require_login')) {
         if (!SUPERADMIN_SESSION_READY) {
             http_response_code(500);
             exit('Session server tidak bisa dimulai. Periksa konfigurasi session.save_path di hosting.');
-        }
-
-        if (!superadmin_ip_allowed()) {
-            http_response_code(403);
-            exit('Akses ditolak.');
         }
 
         if (!superadmin_is_logged_in()) {
