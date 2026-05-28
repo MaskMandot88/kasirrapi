@@ -1,8 +1,8 @@
 .kr-live-chat {
     position: fixed;
-    right: 18px;
-    bottom: 18px;
-    z-index: 80;
+    right: 22px;
+    bottom: 24px;
+    z-index: 90;
     width: min(380px, calc(100vw - 28px));
     font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
     pointer-events: none;
@@ -10,7 +10,8 @@
 
 .kr-chat-promo {
     position: relative;
-    width: min(258px, 74vw);
+    width: min(196px, 54vw);
+    max-height: min(310px, calc(100vh - 150px));
     margin-left: auto;
     pointer-events: auto;
 }
@@ -28,13 +29,16 @@
 .kr-chat-promo-image {
     display: block;
     width: 100%;
+    max-height: min(310px, calc(100vh - 150px));
     height: auto;
+    object-fit: contain;
+    object-position: right bottom;
 }
 
 .kr-chat-promo-close {
     position: absolute;
-    top: 52px;
-    right: 6px;
+    top: 38px;
+    right: 0;
     z-index: 2;
     width: 30px;
     height: 30px;
@@ -381,16 +385,21 @@
 @media (max-width: 640px) {
     .kr-live-chat {
         right: 12px;
-        bottom: 12px;
+        bottom: 14px;
         width: min(330px, calc(100vw - 24px));
     }
 
     .kr-chat-promo {
-        width: min(176px, 52vw);
+        width: min(142px, 42vw);
+        max-height: min(230px, calc(100vh - 120px));
+    }
+
+    .kr-chat-promo-image {
+        max-height: min(230px, calc(100vh - 120px));
     }
 
     .kr-chat-promo-close {
-        top: 34px;
+        top: 24px;
         width: 28px;
         height: 28px;
     }

@@ -19,7 +19,7 @@ if (!defined('APP_SEO_DESCRIPTION')) {
 }
 
 if (!defined('APP_VERSION')) {
-    define('APP_VERSION', '1.0.18');
+    define('APP_VERSION', '1.0.19');
 }
 
 /*
