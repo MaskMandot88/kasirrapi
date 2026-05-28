@@ -1,6 +1,7 @@
 <?php
 session_start();
 require_once '../config/database.php';
+require_once '../includes/notifications.php';
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     header("Location: login.php");
@@ -55,6 +56,10 @@ try {
     $_SESSION['nama']      = $user['nama'];
     $_SESSION['nama_user'] = $user['nama'];
     $_SESSION['nama_toko'] = $user['nama_toko'] ?? '';
+
+    if (($user['role'] ?? '') === 'Owner') {
+        app_notify_owner_expiry_if_needed($pdo, (int)$user['tenant_id']);
+    }
 
     header("Location: ../dashboard/index.php");
     exit;

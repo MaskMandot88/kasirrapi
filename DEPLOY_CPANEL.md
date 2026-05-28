@@ -26,6 +26,7 @@ File berikut tidak ikut GitHub dan harus dibuat di hosting:
 - `config/mail.php`
 - `config/tripay.php`
 - `config/gemini.php`
+- `config/cron.php`
 
 Buat dari file contoh:
 
@@ -34,9 +35,10 @@ cp config/database.example.php config/database.php
 cp config/mail.example.php config/mail.php
 cp config/tripay.example.php config/tripay.php
 cp config/gemini.example.php config/gemini.php
+cp config/cron.example.php config/cron.php
 ```
 
-Lalu isi kredensial asli dari cPanel, Tripay, dan Gemini.
+Lalu isi kredensial asli dari cPanel, Tripay, Gemini, dan token cron.
 
 ## Database
 
@@ -72,6 +74,22 @@ Jika aplikasi berada di subfolder, sesuaikan URL callback dengan lokasi aplikasi
 6. Jika CS AI tidak bisa menyelesaikan masalah, user akan diminta memasukkan email akun terdaftar. Tiketnya muncul di `superadmin/index.php`.
 
 Jangan pernah commit `config/gemini.php` karena berisi API key.
+
+## Cron Reminder Masa Aktif
+
+Notifikasi H-3 masa aktif bisa dibuat otomatis lewat Cron Jobs cPanel.
+
+Rekomendasi harian pukul 08:00:
+
+```bash
+0 8 * * * /usr/local/bin/php /home/USERNAME/public_html/cron/reminder-masa-aktif.php
+```
+
+Jika hosting hanya menyediakan cron URL, gunakan endpoint berikut dan ganti token sesuai `config/cron.php`:
+
+```text
+https://domain-anda.com/cron/reminder-masa-aktif.php?token=TOKEN_CRON_ANDA
+```
 
 ## Folder Writable
 

@@ -2,6 +2,8 @@
 /config/mail.php
 /config/tripay.php
 /config/gemini.php
+/config/superadmin.php
+/config/cron.php
 /config/*copy*.php
 .env
 

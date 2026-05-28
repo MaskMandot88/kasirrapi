@@ -2,6 +2,7 @@
 session_start();
 require_once '../config/database.php';
 require_once '../includes/ui.php';
+require_once '../includes/notifications.php';
 
 if (!isset($_SESSION['tenant_id'], $_SESSION['user_id'], $_SESSION['role'])) {
     header('Location: ../login.php');
@@ -58,10 +59,7 @@ if ($target_role === 'User Tertentu') {
 
 $link = $link !== '' ? $link : null;
 
-$stmt = $pdo->prepare("INSERT INTO notifikasi
-    (tenant_id, pengirim_id, target_user_id, target_role, tipe, judul, pesan, link, prioritas)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
-$stmt->execute([$tenant_id, $user_id, $target_user_id, $targetRoleDb, $tipe, $judul, $pesan, $link, $prioritas]);
+app_notification_create($pdo, $tenant_id, $user_id, $target_user_id, $targetRoleDb, $tipe, $judul, $pesan, $link, $prioritas);
 
 $_SESSION['flash']['success'] = 'Pemberitahuan berhasil dikirim.';
 header('Location: index.php');

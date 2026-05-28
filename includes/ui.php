@@ -8,6 +8,7 @@ if (file_exists(__DIR__ . '/../config/app.php')) {
 require_once __DIR__ . '/pwa.php';
 require_once __DIR__ . '/plans.php';
 require_once __DIR__ . '/live-chat.php';
+require_once __DIR__ . '/notifications.php';
 
 if (!defined('APP_NAME')) define('APP_NAME', 'KasirRapi');
 if (!defined('APP_TAGLINE')) define('APP_TAGLINE', 'Transaksi rapi, usaha lebih pasti.');
@@ -144,6 +145,10 @@ if (!function_exists('notif_count_unread')) {
         }
 
         try {
+            if ($role === 'Owner') {
+                app_notify_owner_expiry_if_needed($pdo, $tenant_id);
+            }
+
             $s = $pdo->prepare("
                 SELECT COUNT(*)
                 FROM notifikasi n

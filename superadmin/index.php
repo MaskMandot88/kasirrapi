@@ -1,11 +1,16 @@
 <?php
 // superadmin/index.php
-require_once '../config/database.php';
-require_once '../includes/tripay.php';
-require_once '../includes/support.php';
+require_once __DIR__ . '/_auth.php';
+superadmin_require_login();
+
+require_once __DIR__ . '/../config/database.php';
+require_once __DIR__ . '/../includes/tripay.php';
+require_once __DIR__ . '/../includes/support.php';
+require_once __DIR__ . '/../includes/notifications.php';
 
 tripay_ensure_subscription_columns($pdo);
 support_tickets_table($pdo);
+app_notifications_ensure_tables($pdo);
 
 function superadmin_h($value) {
     return htmlspecialchars((string)$value, ENT_QUOTES, 'UTF-8');
@@ -33,7 +38,77 @@ if (isset($_GET['hapus'])) {
 }
 
 // Menangani Tambah Tenant + User Baru
-if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['tambah'])) {
+$requestMethod = $_SERVER['REQUEST_METHOD'] ?? 'GET';
+if ($requestMethod === 'POST' && isset($_POST['kirim_pengumuman_owner'])) {
+    $target = $_POST['target_owner'] ?? 'semua';
+    $tenantId = (int)($_POST['tenant_id'] ?? 0);
+    $ownerUserId = (int)($_POST['owner_user_id'] ?? 0);
+    $judul = trim($_POST['judul'] ?? '');
+    $pesan = trim($_POST['pesan'] ?? '');
+    $prioritas = $_POST['prioritas'] ?? 'Penting';
+
+    if ($judul === '' || $pesan === '') {
+        $errorAnnouncement = 'Judul dan pesan pengumuman wajib diisi.';
+    } elseif (!in_array($prioritas, ['Normal', 'Penting', 'Darurat'], true)) {
+        $errorAnnouncement = 'Prioritas tidak valid.';
+    } else {
+        try {
+            if ($target === 'owner_tertentu') {
+                $stmt = $pdo->prepare("
+                    SELECT id, tenant_id
+                    FROM users
+                    WHERE id = ?
+                      AND role = 'Owner'
+                      AND (? = 0 OR tenant_id = ?)
+                    LIMIT 1
+                ");
+                $stmt->execute([$ownerUserId, $tenantId, $tenantId]);
+                $owner = $stmt->fetch();
+
+                if (!$owner) {
+                    $errorAnnouncement = 'Owner tujuan tidak valid.';
+                } else {
+                    app_notification_create($pdo, (int)$owner['tenant_id'], null, (int)$owner['id'], 'Owner', 'Pengumuman', $judul, $pesan, '../notifikasi/index.php', $prioritas);
+                    header("Location: index.php?pesan=pengumuman");
+                    exit;
+                }
+            } elseif ($target === 'tenant_tertentu') {
+                $stmt = $pdo->prepare("SELECT id FROM tenants WHERE id = ? LIMIT 1");
+                $stmt->execute([$tenantId]);
+                if (!$stmt->fetch()) {
+                    $errorAnnouncement = 'Tenant tujuan tidak valid.';
+                } else {
+                    app_notification_create($pdo, $tenantId, null, null, 'Owner', 'Pengumuman', $judul, $pesan, '../notifikasi/index.php', $prioritas);
+                    header("Location: index.php?pesan=pengumuman");
+                    exit;
+                }
+            } else {
+                $stmt = $pdo->query("SELECT id FROM tenants ORDER BY id ASC");
+                $count = 0;
+                foreach ($stmt->fetchAll(PDO::FETCH_COLUMN) as $id) {
+                    app_notification_create($pdo, (int)$id, null, null, 'Owner', 'Pengumuman', $judul, $pesan, '../notifikasi/index.php', $prioritas);
+                    $count++;
+                }
+                header("Location: index.php?pesan=pengumuman&jumlah=" . $count);
+                exit;
+            }
+        } catch (Throwable $e) {
+            $errorAnnouncement = 'Gagal mengirim pengumuman: ' . $e->getMessage();
+        }
+    }
+}
+
+if ($requestMethod === 'POST' && isset($_POST['kirim_reminder_masa_aktif'])) {
+    try {
+        $sentReminder = app_notify_all_owner_expiry_warnings($pdo);
+        header("Location: index.php?pesan=reminder&jumlah=" . $sentReminder);
+        exit;
+    } catch (Throwable $e) {
+        $errorAnnouncement = 'Gagal membuat reminder masa aktif: ' . $e->getMessage();
+    }
+}
+
+if ($requestMethod === 'POST' && isset($_POST['tambah'])) {
     $nama_toko = $_POST['nama_toko'];
     $slug = strtolower(trim(preg_replace('/[^A-Za-z0-9-]+/', '-', $nama_toko)));
     $nama_pemilik = $_POST['nama_pemilik'];
@@ -90,8 +165,17 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['tambah'])) {
 }
 
 // Ambil semua data tenant untuk ditampilkan di tabel bawah
-$stmt = $pdo->query("SELECT * FROM tenants ORDER BY id DESC");
+$stmt = $pdo->query("SELECT * FROM tenants ORDER BY FIELD(status, 'Aktif', 'Suspend'), id DESC");
 $tenants = $stmt->fetchAll();
+
+$stmt = $pdo->query("
+    SELECT u.id, u.tenant_id, u.nama, u.email, t.nama_toko
+    FROM users u
+    JOIN tenants t ON t.id = u.tenant_id
+    WHERE u.role = 'Owner'
+    ORDER BY t.nama_toko ASC, u.nama ASC
+");
+$owners = $stmt->fetchAll();
 
 $ticketBaru = (int)$pdo->query("SELECT COUNT(*) FROM support_tickets WHERE status = 'Baru'")->fetchColumn();
 $stmt = $pdo->query("
@@ -115,6 +199,7 @@ $supportTickets = $stmt->fetchAll();
         th, td { padding: 10px; border: 1px solid #ddd; text-align: left; }
         th { background-color: #007bff; color: white; }
         input, select, button { padding: 10px; margin: 8px 0; width: 100%; box-sizing: border-box; display: block;}
+        textarea { padding: 10px; margin: 8px 0; width: 100%; min-height: 120px; box-sizing: border-box; display: block; resize: vertical; }
         .btn { background: #28a745; color: white; border: none; cursor: pointer; font-weight: bold; }
         .btn-danger { background: #dc3545; color: white; padding: 5px 10px; text-decoration: none; border-radius: 4px;}
         .btn-small { display: inline-block; width: auto; margin: 3px; padding: 6px 9px; border-radius: 4px; color: #fff; text-decoration: none; font-size: 12px; }
@@ -124,13 +209,25 @@ $supportTickets = $stmt->fetchAll();
         .badge-baru { background: #dc3545; }
         .badge-diproses { background: #f59e0b; }
         .badge-selesai { background: #16a34a; }
+        .badge-aktif { background: #16a34a; }
+        .badge-suspend { background: #64748b; }
         .alert-ticket { background: #fff7ed; border: 1px solid #fdba74; color: #9a3412; padding: 10px 12px; border-radius: 6px; }
+        .alert-success { background: #ecfdf5; border: 1px solid #86efac; color: #166534; padding: 10px 12px; border-radius: 6px; }
         .message-preview { max-width: 360px; white-space: normal; line-height: 1.4; }
+        .grid-2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; align-items: start; }
+        @media (max-width: 800px) { .grid-2 { grid-template-columns: 1fr; } }
     </style>
 </head>
 <body>
 
     <h1>Super Admin Dashboard</h1>
+    <p><a href="logout.php">Logout Super Admin</a></p>
+    <?php if(isset($_GET['pesan']) && $_GET['pesan'] == 'pengumuman'): ?>
+        <p class="alert-success">Pengumuman owner berhasil dikirim ke <?= (int)($_GET['jumlah'] ?? 1) ?> target.</p>
+    <?php endif; ?>
+    <?php if(isset($_GET['pesan']) && $_GET['pesan'] == 'reminder'): ?>
+        <p class="alert-success">Reminder masa aktif dibuat untuk <?= (int)($_GET['jumlah'] ?? 0) ?> tenant yang memenuhi syarat.</p>
+    <?php endif; ?>
 
     <div class="card" style="max-width: 100%;">
         <h3>Tiket Live Chat Mentok</h3>
@@ -185,6 +282,7 @@ $supportTickets = $stmt->fetchAll();
         </table>
     </div>
 
+    <div class="grid-2">
     <div class="card">
         <h3>Daftarkan Toko & Owner Baru</h3>
         <?php if(isset($error)) echo "<p style='color:red;'>" . superadmin_h($error) . "</p>"; ?>
@@ -214,8 +312,60 @@ $supportTickets = $stmt->fetchAll();
         </form>
     </div>
 
+    <div class="card">
+        <h3>Pengumuman Khusus Owner</h3>
+        <?php if(isset($errorAnnouncement)) echo "<p style='color:red;'>" . superadmin_h($errorAnnouncement) . "</p>"; ?>
+
+        <form method="POST">
+            <label>Target:</label>
+            <select name="target_owner" id="targetOwner">
+                <option value="semua">Semua Owner Semua Tenant</option>
+                <option value="tenant_tertentu">Owner di Tenant Tertentu</option>
+                <option value="owner_tertentu">Owner Tertentu</option>
+            </select>
+
+            <label id="tenantTargetLabel">Tenant:</label>
+            <select name="tenant_id" id="tenantTarget">
+                <option value="0">Pilih tenant</option>
+                <?php foreach ($tenants as $t): ?>
+                    <option value="<?= (int)$t['id'] ?>"><?= superadmin_h($t['nama_toko']) ?> - <?= superadmin_h($t['email']) ?></option>
+                <?php endforeach; ?>
+            </select>
+
+            <label id="ownerTargetLabel">Owner:</label>
+            <select name="owner_user_id" id="ownerTarget">
+                <option value="0">Pilih owner</option>
+                <?php foreach ($owners as $owner): ?>
+                    <option value="<?= (int)$owner['id'] ?>" data-tenant-id="<?= (int)$owner['tenant_id'] ?>">
+                        <?= superadmin_h($owner['nama_toko']) ?> - <?= superadmin_h($owner['nama']) ?> (<?= superadmin_h($owner['email']) ?>)
+                    </option>
+                <?php endforeach; ?>
+            </select>
+
+            <label>Judul:</label>
+            <input type="text" name="judul" maxlength="150" placeholder="Contoh: Info perpanjangan layanan">
+
+            <label>Pesan:</label>
+            <textarea name="pesan" placeholder="Tulis pengumuman untuk owner..."></textarea>
+
+            <label>Prioritas:</label>
+            <select name="prioritas">
+                <option value="Penting">Penting</option>
+                <option value="Normal">Normal</option>
+                <option value="Darurat">Darurat</option>
+            </select>
+
+            <button type="submit" name="kirim_pengumuman_owner" class="btn">Kirim Pengumuman Owner</button>
+        </form>
+
+        <form method="POST">
+            <button type="submit" name="kirim_reminder_masa_aktif" class="btn">Kirim Reminder H-3 Masa Aktif</button>
+        </form>
+    </div>
+    </div>
+
     <div class="card" style="max-width: 100%;">
-        <h3>Daftar Toko Aktif</h3>
+        <h3>Daftar Semua Tenant</h3>
         <table>
             <tr>
                 <th>ID Tenant</th>
@@ -223,15 +373,24 @@ $supportTickets = $stmt->fetchAll();
                 <th>URL Slug</th>
                 <th>Pemilik & Email</th>
                 <th>Paket</th>
+                <th>Status</th>
+                <th>Masa Aktif</th>
                 <th>Aksi</th>
             </tr>
             <?php foreach ($tenants as $t): ?>
+            <?php
+                $tenantStatus = $t['status'] ?? '-';
+                $statusClass = strtolower((string)$tenantStatus) === 'aktif' ? 'badge-aktif' : 'badge-suspend';
+                $expiredAt = !empty($t['plan_expired_at']) ? date('d/m/Y H:i', strtotime($t['plan_expired_at'])) : '-';
+            ?>
             <tr>
                 <td><?= $t['id'] ?></td>
                 <td><?= superadmin_h($t['nama_toko']) ?></td>
                 <td><strong>/<?= superadmin_h($t['slug']) ?></strong></td>
                 <td><?= superadmin_h($t['nama_pemilik']) ?><br><small><?= superadmin_h($t['email']) ?></small></td>
-                <td><?= superadmin_h($t['paket_langganan']) ?></td>
+                <td><?= superadmin_h($t['paket_langganan']) ?><br><small><?= superadmin_h($t['plan'] ?? '-') ?></small></td>
+                <td><span class="badge <?= superadmin_h($statusClass) ?>"><?= superadmin_h($tenantStatus) ?></span></td>
+                <td><?= superadmin_h($expiredAt) ?></td>
                 <td>
                     <a href="index.php?hapus=<?= $t['id'] ?>" class="btn-danger" onclick="return confirm('Hapus tenant ini? Semua data user dan barang toko ini akan ikut terhapus permanen!')">Hapus</a>
                 </td>
@@ -239,6 +398,43 @@ $supportTickets = $stmt->fetchAll();
             <?php endforeach; ?>
         </table>
     </div>
+
+<script>
+(function(){
+    const targetOwner = document.getElementById('targetOwner');
+    const tenantTarget = document.getElementById('tenantTarget');
+    const ownerTarget = document.getElementById('ownerTarget');
+    const tenantLabel = document.getElementById('tenantTargetLabel');
+    const ownerLabel = document.getElementById('ownerTargetLabel');
+    const ownerOptions = Array.from(ownerTarget.options);
+
+    function syncTargets(){
+        const mode = targetOwner.value;
+        const showTenant = mode === 'tenant_tertentu' || mode === 'owner_tertentu';
+        const showOwner = mode === 'owner_tertentu';
+        tenantTarget.style.display = showTenant ? 'block' : 'none';
+        tenantLabel.style.display = showTenant ? 'block' : 'none';
+        ownerTarget.style.display = showOwner ? 'block' : 'none';
+        ownerLabel.style.display = showOwner ? 'block' : 'none';
+        filterOwners();
+    }
+
+    function filterOwners(){
+        const selectedTenant = tenantTarget.value;
+        ownerOptions.forEach(function(option){
+            const tenantId = option.getAttribute('data-tenant-id');
+            option.hidden = selectedTenant !== '0' && tenantId && tenantId !== selectedTenant;
+        });
+        if (ownerTarget.selectedOptions[0] && ownerTarget.selectedOptions[0].hidden) {
+            ownerTarget.value = '0';
+        }
+    }
+
+    targetOwner.addEventListener('change', syncTargets);
+    tenantTarget.addEventListener('change', filterOwners);
+    syncTargets();
+})();
+</script>
 
 </body>
 </html>
