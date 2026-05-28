@@ -1,0 +1,14 @@
+RewriteEngine On
+RewriteRule ^sitemap\.xml$ sitemap.php [L]
+RewriteRule ^(tentang|kontak|kebijakan-privasi|syarat-ketentuan|disclaimer|registrasi|registrasi-status)$ $1.php [L,QSA]
+RewriteRule ^(superadmin|config|auth|dashboard|barang|public) - [L]
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^([a-zA-Z0-9_-]+)$ auth/login.php?toko=$1 [L,QSA]
+
+# Disable cache sementara untuk asset aplikasi saat development
+<FilesMatch "\.(css|js|svg|png|jpg|jpeg|webp)$">
+    Header set Cache-Control "no-cache, no-store, must-revalidate"
+    Header set Pragma "no-cache"
+    Header set Expires 0
+</FilesMatch>

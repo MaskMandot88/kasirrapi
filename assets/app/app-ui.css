@@ -1,0 +1,34 @@
+html,body{max-width:100%;overflow-x:hidden}
+body{background:radial-gradient(circle at top left,rgba(255,106,0,.13),transparent 28rem),radial-gradient(circle at bottom right,rgba(255,138,0,.08),transparent 28rem),#020617;color:#e2e8f0}
+*{box-sizing:border-box}
+.app-shell{min-height:100vh}
+.app-sidebar{width:280px}
+.app-card,.mobile-card,.stat-card{background:rgba(15,23,42,.96);border:1px solid #1e293b;border-radius:1rem}
+.stat-card,.mobile-card{padding:1rem}
+.mobile-card-list{display:grid;gap:.75rem}
+.label{color:#94a3b8;font-size:.8rem}
+.value{font-weight:800;overflow-wrap:anywhere}
+.app-input,.app-select,.app-textarea{width:100%;background:#020617;border:1px solid #334155;color:#e2e8f0;border-radius:.875rem;padding:.75rem;outline:none;min-height:44px;font-size:16px}
+.app-input:focus,.app-select:focus,.app-textarea:focus{border-color:#ff6a00;box-shadow:0 0 0 3px rgba(255,106,0,.16)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:.5rem;border-radius:.875rem;padding:.75rem 1rem;font-weight:800;text-align:center;min-height:44px;transition:transform .15s ease,background .15s ease,opacity .15s ease}
+.btn:active{transform:scale(.98)}
+.btn-primary{background:#ff6a00;color:white}
+.btn-primary:hover{background:#ff7a1a}
+.btn-secondary{background:#1e293b;color:#e2e8f0}
+.btn-secondary:hover{background:#334155}
+.btn-danger{background:#dc2626;color:white}
+.btn-warning{background:#d97706;color:white}
+.brand-orange,.brand-gradient{background:linear-gradient(135deg,#ff8a00,#ff4d00);-webkit-background-clip:text;background-clip:text;color:transparent}
+#globalLoader{position:fixed;inset:0;z-index:99999;display:none;align-items:center;justify-content:center;background:rgba(2,6,23,.82);backdrop-filter:blur(10px)}
+#globalLoader.active{display:flex}
+.loader-card{width:min(92vw,360px);background:rgba(15,23,42,.96);border:1px solid rgba(255,106,0,.35);border-radius:1.5rem;padding:1.5rem;text-align:center;box-shadow:0 30px 80px rgba(0,0,0,.4)}
+.loader-img{width:78px;height:78px;margin:0 auto 1rem;display:block;filter:drop-shadow(0 15px 30px rgba(255,106,0,.25));animation:loaderPop 1.2s ease-in-out infinite}
+.loader-logo-full{width:min(240px,78vw);height:auto;margin:0 auto 1rem;display:block;filter:drop-shadow(0 15px 30px rgba(255,106,0,.25));animation:loaderPop 1.2s ease-in-out infinite}
+.loader-ring{width:42px;height:42px;border:4px solid rgba(148,163,184,.25);border-top-color:#ff6a00;border-right-color:#ffb000;border-radius:999px;margin:.75rem auto 0;animation:spin .75s linear infinite}
+.page-enter{animation:pageEnter .22s ease-out both}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes loaderPop{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
+@keyframes pageEnter{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+@media(max-width:768px){.desktop-only{display:none!important}.mobile-full{width:100%!important}.btn{width:100%}.app-page{padding:1rem!important}.app-title{font-size:1.45rem!important}}
+@media(min-width:769px){.mobile-only{display:none!important}}
+@media print{.no-print,#globalLoader{display:none!important}body{background:white!important;color:black!important}.app-card,.mobile-card,.stat-card{background:white!important;color:black!important;border:1px solid #ddd!important}.label{color:#555!important}.value{color:#000!important}}

@@ -1,0 +1,424 @@
+.kr-live-chat {
+    position: fixed;
+    right: 18px;
+    bottom: 18px;
+    z-index: 80;
+    width: min(380px, calc(100vw - 28px));
+    font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    pointer-events: none;
+}
+
+.kr-chat-promo {
+    position: relative;
+    width: min(258px, 74vw);
+    margin-left: auto;
+    pointer-events: auto;
+}
+
+.kr-chat-promo-launch {
+    display: block;
+    width: 100%;
+    border: 0;
+    padding: 0;
+    background: transparent;
+    cursor: pointer;
+    filter: drop-shadow(0 22px 34px rgba(0, 0, 0, .42));
+}
+
+.kr-chat-promo-image {
+    display: block;
+    width: 100%;
+    height: auto;
+}
+
+.kr-chat-promo-close {
+    position: absolute;
+    top: 52px;
+    right: 6px;
+    z-index: 2;
+    width: 30px;
+    height: 30px;
+    border: 1px solid rgba(15, 23, 42, .18);
+    border-radius: 999px;
+    background: rgba(255, 255, 255, .94);
+    color: #111827;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, .22);
+    cursor: pointer;
+    font-weight: 950;
+    line-height: 1;
+}
+
+.kr-live-chat.promo-hidden .kr-chat-promo,
+.kr-live-chat.open .kr-chat-promo {
+    display: none;
+}
+
+.kr-chat-toggle {
+    width: 116px;
+    height: 64px;
+    border: 0;
+    border-radius: 16px;
+    background: #fff;
+    color: #111827;
+    box-shadow: 0 18px 42px rgba(255, 106, 0, .35);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-weight: 950;
+    position: relative;
+    margin-left: auto;
+    overflow: hidden;
+    pointer-events: auto;
+}
+
+.kr-live-chat.promo-hidden .kr-chat-toggle {
+    display: flex;
+}
+
+.kr-live-chat.open .kr-chat-toggle {
+    display: none;
+}
+
+.kr-chat-toggle-icon {
+    width: 102px;
+    height: 54px;
+    object-fit: contain;
+}
+
+.kr-chat-toggle-dot {
+    position: absolute;
+    right: 7px;
+    top: 7px;
+    width: 10px;
+    height: 10px;
+    border-radius: 999px;
+    background: #22c55e;
+    border: 2px solid #fff;
+}
+
+.kr-chat-panel {
+    position: absolute;
+    right: 0;
+    bottom: 72px;
+    width: min(380px, calc(100vw - 28px));
+    height: min(560px, calc(100vh - 112px));
+    background: #0f172a;
+    border: 1px solid rgba(148, 163, 184, .22);
+    border-radius: 18px;
+    box-shadow: 0 24px 80px rgba(0, 0, 0, .46);
+    overflow: hidden;
+    display: none;
+    pointer-events: auto;
+}
+
+.kr-live-chat.open .kr-chat-panel {
+    display: grid;
+    grid-template-rows: auto 1fr auto;
+}
+
+.kr-chat-head {
+    padding: 14px;
+    background: #020617;
+    border-bottom: 1px solid rgba(148, 163, 184, .16);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.kr-chat-profile {
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.kr-chat-avatar {
+    width: 42px;
+    height: 42px;
+    flex: 0 0 42px;
+    border-radius: 50%;
+    background: #fff7ed;
+    border: 2px solid rgba(255, 106, 0, .5);
+    object-fit: cover;
+}
+
+.kr-chat-meta {
+    min-width: 0;
+}
+
+.kr-chat-title {
+    color: #fff;
+    font-weight: 950;
+    line-height: 1.2;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.kr-chat-subtitle {
+    color: #94a3b8;
+    font-size: 12px;
+    margin-top: 3px;
+}
+
+.kr-chat-close {
+    width: 34px;
+    height: 34px;
+    border: 1px solid rgba(148, 163, 184, .22);
+    border-radius: 10px;
+    background: #1e293b;
+    color: #e2e8f0;
+    cursor: pointer;
+}
+
+.kr-chat-messages {
+    padding: 14px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.kr-chat-bubble {
+    max-width: 86%;
+    border-radius: 14px;
+    padding: 10px 12px;
+    line-height: 1.5;
+    font-size: 14px;
+    white-space: pre-wrap;
+}
+
+.kr-chat-bubble.user {
+    align-self: flex-end;
+    background: #ff6a00;
+    color: #fff;
+    border-bottom-right-radius: 5px;
+}
+
+.kr-chat-bubble.model {
+    align-self: flex-start;
+    background: #020617;
+    color: #e2e8f0;
+    border: 1px solid rgba(148, 163, 184, .16);
+    border-bottom-left-radius: 5px;
+}
+
+.kr-chat-typing {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    color: #cbd5e1;
+}
+
+.kr-chat-typing span {
+    margin-right: 3px;
+}
+
+.kr-chat-typing i {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: #ffb366;
+    animation: krTyping 1s infinite ease-in-out;
+}
+
+.kr-chat-typing i:nth-child(3) {
+    animation-delay: .15s;
+}
+
+.kr-chat-typing i:nth-child(4) {
+    animation-delay: .3s;
+}
+
+.kr-session-actions {
+    align-self: flex-start;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    max-width: 86%;
+}
+
+.kr-session-actions button {
+    border: 1px solid rgba(148, 163, 184, .22);
+    border-radius: 999px;
+    padding: 8px 12px;
+    font-weight: 900;
+    cursor: pointer;
+}
+
+.kr-session-end {
+    background: #ff6a00;
+    color: #fff;
+}
+
+.kr-session-continue {
+    background: #1e293b;
+    color: #e2e8f0;
+}
+
+@keyframes krTyping {
+    0%, 80%, 100% {
+        transform: translateY(0);
+        opacity: .45;
+    }
+    40% {
+        transform: translateY(-3px);
+        opacity: 1;
+    }
+}
+
+.kr-escalation-box {
+    align-self: flex-start;
+    width: min(100%, 320px);
+    border-radius: 14px;
+    padding: 12px;
+    background: #111827;
+    border: 1px solid rgba(255, 106, 0, .35);
+    color: #e5e7eb;
+    box-shadow: 0 16px 32px rgba(0, 0, 0, .22);
+}
+
+.kr-escalation-title {
+    font-weight: 950;
+    color: #fff;
+    margin-bottom: 4px;
+}
+
+.kr-escalation-box p {
+    margin: 0 0 10px;
+    color: #cbd5e1;
+    font-size: 13px;
+    line-height: 1.45;
+}
+
+.kr-escalation-form {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 8px;
+}
+
+.kr-escalation-input {
+    min-width: 0;
+    border-radius: 11px;
+    border: 1px solid #334155;
+    background: #020617;
+    color: #e2e8f0;
+    padding: 10px 11px;
+    outline: none;
+}
+
+.kr-escalation-input:focus {
+    border-color: #ff6a00;
+    box-shadow: 0 0 0 3px rgba(255, 106, 0, .16);
+}
+
+.kr-escalation-button {
+    border: 0;
+    border-radius: 11px;
+    background: #ff6a00;
+    color: #fff;
+    font-weight: 950;
+    padding: 0 12px;
+    cursor: pointer;
+}
+
+.kr-escalation-button:disabled {
+    opacity: .65;
+    cursor: wait;
+}
+
+.kr-escalation-error {
+    min-height: 18px;
+    margin-top: 8px;
+    color: #fecaca;
+    font-size: 12px;
+    line-height: 1.4;
+}
+
+.kr-chat-form {
+    padding: 12px;
+    border-top: 1px solid rgba(148, 163, 184, .16);
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 8px;
+    background: #020617;
+}
+
+.kr-chat-input {
+    min-height: 44px;
+    max-height: 96px;
+    resize: none;
+    border-radius: 13px;
+    border: 1px solid #334155;
+    background: #0f172a;
+    color: #e2e8f0;
+    padding: 11px 12px;
+    outline: none;
+}
+
+.kr-chat-input:focus {
+    border-color: #ff6a00;
+    box-shadow: 0 0 0 3px rgba(255, 106, 0, .18);
+}
+
+.kr-chat-send {
+    min-width: 72px;
+    border: 0;
+    border-radius: 13px;
+    background: #ff6a00;
+    color: #fff;
+    font-weight: 950;
+    cursor: pointer;
+}
+
+.kr-chat-send:disabled {
+    opacity: .65;
+    cursor: wait;
+}
+
+@media (max-width: 640px) {
+    .kr-live-chat {
+        right: 12px;
+        bottom: 12px;
+        width: min(330px, calc(100vw - 24px));
+    }
+
+    .kr-chat-promo {
+        width: min(176px, 52vw);
+    }
+
+    .kr-chat-promo-close {
+        top: 34px;
+        width: 28px;
+        height: 28px;
+    }
+
+    .kr-chat-toggle {
+        width: 104px;
+        height: 58px;
+    }
+
+    .kr-chat-toggle-icon {
+        width: 91px;
+        height: 48px;
+    }
+
+    .kr-chat-panel {
+        position: fixed;
+        right: 10px;
+        left: 10px;
+        bottom: 74px;
+        width: auto;
+        height: min(540px, calc(100vh - 92px));
+    }
+
+    .kr-escalation-form {
+        grid-template-columns: 1fr;
+    }
+
+    .kr-escalation-button {
+        min-height: 42px;
+    }
+}
