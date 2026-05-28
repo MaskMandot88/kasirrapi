@@ -39,13 +39,16 @@ if (!function_exists('superadmin_is_logged_in')) {
 
 if (!function_exists('superadmin_config_ready')) {
     function superadmin_config_ready() {
-        $hashInfo = password_get_info((string)SUPERADMIN_PASSWORD_HASH);
+        $hash = (string)SUPERADMIN_PASSWORD_HASH;
+        $hashInfo = password_get_info($hash);
+        $isBcryptHash = !empty($hashInfo['algo'])
+            || preg_match('/^\$2[ayb]\$\d{2}\$[\.\/A-Za-z0-9]{53}$/', $hash);
 
         return SUPERADMIN_CONFIG_LOADED
             && trim((string)SUPERADMIN_USERNAME) !== ''
-            && trim((string)SUPERADMIN_PASSWORD_HASH) !== ''
-            && SUPERADMIN_PASSWORD_HASH !== 'ISI_HASH_PASSWORD_DI_SINI'
-            && !empty($hashInfo['algo']);
+            && trim($hash) !== ''
+            && $hash !== 'ISI_HASH_PASSWORD_DI_SINI'
+            && $isBcryptHash;
     }
 }
 
